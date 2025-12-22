@@ -26,7 +26,7 @@ abstract class ApkDistExtension @Inject constructor(layout: ProjectLayout) {
     abstract val artifactNamePrefix: Property<String>
 
     init {
-        distDirectory.convention(layout.buildDirectory.dir("dist/apk"))
+        distDirectory.convention(layout.buildDirectory.dir("outputs/apk"))
         enabled.convention(true)
         artifactNamePrefix.convention("app")
     }
