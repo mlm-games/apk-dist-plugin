@@ -9,7 +9,7 @@ abstract class ApkDistExtension @Inject constructor(layout: ProjectLayout) {
     
     /**
      * The directory where the renamed APKs will be copied.
-     * Default: {buildDir}/dist/apk
+     * Default: {buildDir}/outputs/apk
      */
     abstract val distDirectory: DirectoryProperty
 

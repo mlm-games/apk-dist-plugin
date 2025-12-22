@@ -49,7 +49,7 @@ abstract class CopyApksTask @Inject constructor() : DefaultTask() {
             
             // Format: {prefix}-{variant}-{version}-{abi}.apk
             // Example: appp-release-1.0.0-arm64-v8a.apk
-            val outName = "$prefix-${variantName.get()}-$versionName-$abiSuffix-.apk"
+            val outName = "$prefix-${variantName.get()}-$versionName-$abiSuffix.apk"
             
             val inFile = File(artifact.outputFile)
             val outFile = File(outDir, outName)
