@@ -1,8 +1,8 @@
 [versions]
-kotlin = "2.2.0"
+kotlin = "2.3.0"
 gradle-android = "8.13.2"
 gradle-jvmToolchain = "21"
-agp = "8.7.3"
+agp = "8.13.1"
 
 [libraries]
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
