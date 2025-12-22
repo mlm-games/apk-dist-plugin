@@ -27,7 +27,10 @@ class ApkDistPlugin : Plugin<Project> {
                             "arm64-v8a" -> 0
                             else -> 1
                         }
-                        output.versionCode.set(output.versionCode.map { it + offset })
+                        val base = output.versionCode.orNull
+                        if (base != null) {
+                            output.versionCode.set(base + offset)
+                        }
                     }
 
                     val capName = variant.name.replaceFirstChar {
