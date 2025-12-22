@@ -28,8 +28,3 @@ configure<GradlePluginDevelopmentExtension> {
         }
     }
 }
-
-mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
-}
