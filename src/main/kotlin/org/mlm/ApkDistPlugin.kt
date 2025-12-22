@@ -3,7 +3,6 @@ package org.mlm
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.FilterConfiguration
-import com.android.build.api.variant.VariantOutput
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.util.Locale
@@ -28,9 +27,7 @@ class ApkDistPlugin : Plugin<Project> {
                             "arm64-v8a" -> 0
                             else -> 1
                         }
-                        if (output is VariantOutput) {
-                            output.versionCode.set(output.versionCode.map { it + offset })
-                        }
+                        output.versionCode.set(output.versionCode.map { it + offset })
                     }
 
                     val capName = variant.name.replaceFirstChar {
