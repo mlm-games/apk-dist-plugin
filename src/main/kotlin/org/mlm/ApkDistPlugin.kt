@@ -45,8 +45,12 @@ class ApkDistPlugin : Plugin<Project> {
                         fileNamePrefix.set(extension.artifactNamePrefix)
                     }
 
-                    project.tasks.named("assemble$capName").configure {
-                        finalizedBy(copyTaskProvider)
+                    val assembleTaskName = "assemble$capName"
+
+                    project.tasks.configureEach {
+                        if (name == assembleTaskName) {
+                            finalizedBy(copyTaskProvider)
+                        }
                     }
                 }
             }
