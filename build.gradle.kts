@@ -43,7 +43,7 @@ configure<GradlePluginDevelopmentExtension> {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.S01)
+    publishToMavenCentral()
     signAllPublications()
     coordinates(groupProp, "apk-dist-plugin", versionProp)
 }
