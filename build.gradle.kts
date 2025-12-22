@@ -1,16 +1,49 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+@file:Suppress("UnstableApiUsage")
+
+import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.plugin.devel.GradlePluginDevelopmentExtension // <--- THIS WAS MISSING
 
 plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.compose.compiler) apply false
+    `kotlin-dsl`
+    `java-gradle-plugin`
+    alias(libs.plugins.vanniktech.maven.publish)
 }
 
-subprojects {
-    afterEvaluate {
-        extensions.findByType<KotlinProjectExtension>()?.apply {
-            jvmToolchain(libs.versions.gradle.jvmToolchain.get().toInt())
+val groupProp = project.findProperty("GROUP") as String
+val versionProp = project.findProperty("VERSION_NAME") as String
+
+group = groupProp
+version = versionProp
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+dependencies {
+    compileOnly(gradleApi())
+    compileOnly(libs.android.gradlePlugin)
+    compileOnly(libs.kotlin.gradlePlugin)
+}
+
+configure<GradlePluginDevelopmentExtension> {
+    website.set(project.findProperty("POM_URL") as String)
+    vcsUrl.set(project.findProperty("POM_SCM_URL") as String)
+
+    plugins {
+        create("apkDistPlugin") {
+            id = "io.github.mlm-games.apk-dist"
+            implementationClass = "org.mlm.ApkDistPlugin"
+            displayName = project.findProperty("POM_NAME") as String
+            description = project.findProperty("POM_DESCRIPTION") as String
+            tags.set(listOf("android", "apk", "distribution"))
         }
     }
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.S01)
+    signAllPublications()
+    coordinates(groupProp, "apk-dist-plugin", versionProp)
 }

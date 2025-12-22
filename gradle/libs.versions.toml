@@ -1,12 +1,12 @@
 [versions]
-sampleplugin = "0.1.0"
 kotlin = "2.2.0"
 gradle-android = "8.13.0"
 gradle-jvmToolchain = "21"
+agp = "8.7.3"
 
 [libraries]
-kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-android-gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle-android" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.7.0" }
 androidx-lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version = "2.9.1" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version = "2025.10.00" }
@@ -24,4 +24,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 android-application = { id = "com.android.application", version.ref = "gradle-android" }
 android-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "gradle-android" }
 publish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
-sampleplugin = { id = "org.sample.plugin", version.ref = "sampleplugin" }
+vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version = "0.28.0" }
