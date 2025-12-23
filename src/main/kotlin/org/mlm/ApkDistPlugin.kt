@@ -49,10 +49,14 @@ class ApkDistPlugin : Plugin<Project> {
                     }
 
                     val assembleTaskName = "assemble$capName"
+                    val redirectTaskName = "create${capName}ApkListingFileRedirect"
 
                     project.tasks.configureEach {
                         if (name == assembleTaskName) {
                             finalizedBy(copyTaskProvider)
+                        }
+                        if (name == redirectTaskName) {
+                            dependsOn(copyTaskProvider)
                         }
                     }
                 }
