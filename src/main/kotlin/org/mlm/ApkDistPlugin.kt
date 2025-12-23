@@ -13,52 +13,74 @@ class ApkDistPlugin : Plugin<Project> {
         extension.artifactNamePrefix.convention(project.name)
 
         project.pluginManager.withPlugin("com.android.application") {
-            val androidComponents = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+            val androidComponents =
+                project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
             androidComponents.onVariants { variant ->
-                if (extension.enabled.get()) {
+                if (!extension.enabled.get()) return@onVariants
 
-                    variant.outputs.forEach { output ->
-                        val abi = output.filters.find { it.filterType == FilterConfiguration.FilterType.ABI }?.identifier
-                        val offset = when (abi) {
-                            "x86" -> -3
-                            "x86_64" -> -2
-                            "armeabi-v7a" -> -1
-                            "arm64-v8a" -> 0
-                            else -> 1
-                        }
-                        val base = output.versionCode.orNull
-                        if (base != null) {
-                            output.versionCode.set(base + offset)
-                        }
+                variant.outputs.forEach { output ->
+                    val abi = output.filters
+                        .find { it.filterType == FilterConfiguration.FilterType.ABI }
+                        ?.identifier
+
+                    val offset = when (abi) {
+                        "x86" -> -3
+                        "x86_64" -> -2
+                        "armeabi-v7a" -> -1
+                        "arm64-v8a" -> 0
+                        else -> 1 // universal / unknown
                     }
 
-                    val capName = variant.name.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                    val base = output.versionCode.orNull
+                    if (base != null) {
+                        output.versionCode.set(base + offset)
                     }
-                    val taskName = "dist${capName}Apks"
+                }
 
-                    val copyTaskProvider = project.tasks.register(taskName, CopyApksTask::class.java)
+                val capName = variant.name.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                }
 
-                    copyTaskProvider.configure {
-                        outFolder.set(extension.distDirectory.dir(variant.name))
-                        apkFolder.set(variant.artifacts.get(SingleArtifact.APK))
-                        builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
-                        variantName.set(variant.name)
-                        fileNamePrefix.set(extension.artifactNamePrefix)
+                val taskName = "dist${capName}Apks"
+                val assembleTaskName = "assemble$capName"
+
+                val outDirProvider = extension.distDirectory.dir(variant.name)
+
+                val declaredOutputsProvider = project.providers.provider {
+                    val prefix = extension.artifactNamePrefix.get()
+                    val dir = outDirProvider.get()
+
+                    variant.outputs.map { output ->
+                        val abi = output.filters
+                            .find { it.filterType == FilterConfiguration.FilterType.ABI }
+                            ?.identifier
+
+                        val abiSuffix = abi ?: "universal"
+                        val versionName = output.versionName.orNull ?: "no-version"
+
+                        dir.file("$prefix-${variant.name}-$versionName-$abiSuffix.apk")
                     }
+                }
 
-                    val assembleTaskName = "assemble$capName"
-                    val redirectTaskName = "create${capName}ApkListingFileRedirect"
+                val copyTaskProvider = project.tasks.register(taskName, CopyApksTask::class.java) {
+                    outFolder.set(outDirProvider)
 
-                    project.tasks.configureEach {
-                        if (name == assembleTaskName) {
-                            finalizedBy(copyTaskProvider)
-                        }
-                        if (name == redirectTaskName) {
-                            dependsOn(copyTaskProvider)
-                        }
-                    }
+                    apkFolder.set(variant.artifacts.get(SingleArtifact.APK))
+                    builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
+
+                    variantName.set(variant.name)
+                    fileNamePrefix.set(extension.artifactNamePrefix)
+
+                    outputApks.set(declaredOutputsProvider)
+
+                    group = "distribution"
+                    description = "Copies APK(s) for ${variant.name} to a predictable name in ${outDirProvider.get().asFile}"
+                }
+
+                // Run after assemble<Variant>
+                project.tasks.named(assembleTaskName).configure {
+                    finalizedBy(copyTaskProvider)
                 }
             }
         }
